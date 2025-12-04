@@ -1,0 +1,132 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "epipelagic-ns"
+version = "0.1.0"
+description = "Cohomological framework for turbulent cascade dynamics via geometric Langlands correspondence"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "Epipelagic Research Team", email = "research@epistemic.systems"}
+]
+keywords = [
+    "turbulence",
+    "fluid-dynamics",
+    "geometric-langlands",
+    "persistent-homology",
+    "spectral-sequences",
+    "cascade-theory"
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
+
+dependencies = [
+    "numpy>=1.24.0",
+    "scipy>=1.11.0",
+    "matplotlib>=3.7.0",
+    "plotly>=5.14.0",
+    "taichi>=1.7.0",
+    "ripser>=0.6.4",
+    "scikit-learn>=1.3.0",
+    "h5py>=3.9.0",
+    "pyyaml>=6.0",
+    "tqdm>=4.65.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-benchmark>=4.0.0",
+    "black>=23.7.0",
+    "flake8>=6.1.0",
+    "mypy>=1.5.0",
+    "ipython>=8.14.0",
+    "jupyter>=1.0.0",
+]
+
+topology = [
+    "gudhi>=3.8.0",
+    "persim>=0.3.1",
+]
+
+gpu = [
+    "cupy-cuda11x>=12.0.0",
+]
+
+houdini = [
+    "hou>=20.0.0",  # Houdini Python API (requires Houdini installation)
+]
+
+all = [
+    "epipelagic-ns[dev,topology,gpu]",
+]
+
+[project.urls]
+Homepage = "https://github.com/epistemicSystems/epipelagic-ns"
+Documentation = "https://epipelagic-ns.readthedocs.io"
+Repository = "https://github.com/epistemicSystems/epipelagic-ns"
+Issues = "https://github.com/epistemicSystems/epipelagic-ns/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["epipelagic*"]
+exclude = ["tests*", "experiments*", "docs*"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers --cov=epipelagic --cov-report=term-missing"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "taichi.*",
+    "ripser.*",
+    "gudhi.*",
+    "plotly.*",
+]
+ignore_missing_imports = true

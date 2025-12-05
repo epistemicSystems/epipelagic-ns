@@ -1,19 +1,47 @@
-# Phase 2 Implementation Tasks
+# Phase 2: Topology Implementation Tasks
 
-**Project**: Quran Memorization App - Phase 2 Enhancement
-**Timeline**: Weeks 9-16 (8 weeks)
-**Goal**: Improve accuracy to >95%, add Bret Victor visualizations, achieve 40% Day-7 retention
+**Project**: Epipelagic Turbulence Research - Phase 2 Topology
+**Timeline**: Months 4-6 (12 weeks)
+**Goal**: Prove finiteness bound, integrate persistent homology, extract H¹ₑₚᵢ from DNS data
 **Status**: Ready to implement
 **Last Updated**: 2025-12-05
 
+---
+
+## Overview
+
+Phase 2 focuses on establishing the topological foundations of epipelagic turbulence through persistent homology and cohomological analysis.
+
+### Phase 1 Summary (Completed)
+✅ Taichi GPU cascade solver implemented
+✅ Reynolds number parameter sweeps functional
+✅ Basic topology extraction pipeline (Ripser integration)
+✅ Phase diagram generation capabilities
+
+### Phase 2 Objectives
+
+**Mathematical Goals** (Sonnet Agent):
+- Prove Theorem C: dim(H¹ₑₚᵢ) ≤ C log(Re)
+- Establish persistent homology ↔ cascade cohomology correspondence
+- Develop rigorous theory of H¹ₑₚᵢ as topological invariant
+
+**Computational Goals** (Haiku + Code Agents):
+- Extract dim(H¹ₑₚᵢ) from synthetic and DNS turbulence
+- Validate finiteness bound empirically across Re ∈ [100, 10⁶]
+- Build production-grade topology extraction pipeline
+- Create interactive visualizations (Houdini/Plotly)
+
+---
+
 ## Table of Contents
+
 1. [Prerequisites Check](#prerequisites-check)
-2. [Week 9: Data Collection & Analysis](#week-9-data-collection--analysis)
-3. [Week 10-11: Whisper Fine-Tuning](#week-10-11-whisper-fine-tuning)
-4. [Week 12: ML Error Classifier](#week-12-ml-error-classifier)
-5. [Week 13-14: Bret Victor Visualizations](#week-13-14-bret-victor-visualizations)
-6. [Week 15: Personalized Spaced Repetition](#week-15-personalized-spaced-repetition)
-7. [Week 16: Iteration & Polish](#week-16-iteration--polish)
+2. [Week 1-2: DNS Data Integration](#week-1-2-dns-data-integration)
+3. [Week 3-4: Advanced Persistent Homology](#week-3-4-advanced-persistent-homology)
+4. [Week 5-6: Realistic Vorticity Generation](#week-5-6-realistic-vorticity-generation)
+5. [Week 7-8: Finiteness Validation](#week-7-8-finiteness-validation)
+6. [Week 9-10: Houdini Visualization](#week-9-10-houdini-visualization)
+7. [Week 11-12: Large-Scale Processing](#week-11-12-large-scale-processing)
 8. [Success Criteria](#success-criteria)
 9. [Risk Mitigation](#risk-mitigation)
 
@@ -21,959 +49,604 @@
 
 ## Prerequisites Check
 
-**Before starting Phase 2, verify Phase 1 (MVP) is complete:**
+**Before starting Phase 2, verify Phase 1 completion:**
 
-- [ ] **Backend API** (Node.js + Express)
-  - [ ] User authentication (JWT) working
-  - [ ] All API endpoints implemented (auth, verses, practice, reviews, progress)
-  - [ ] PostgreSQL database with all tables
-  - [ ] Redis caching configured
-  - [ ] S3 audio storage working
-  - [ ] Whisper ASR integration complete
-  - [ ] Rule-based error detection implemented
-  - [ ] SM-2 spaced repetition working
+- [x] **Taichi GPU Solver**
+  - [x] 3-shell cascade model functional
+  - [x] RK4 time integration stable
+  - [x] Energy conservation verified
+  - [x] CPU performance: ~700 steps/sec
 
-- [ ] **Frontend App** (React Native)
-  - [ ] All 4 screens complete (Practice, Recall, Progress, Onboarding)
-  - [ ] Audio recording/playback working
-  - [ ] Redux state management configured
-  - [ ] API integration complete
+- [x] **Parameter Sweeps**
+  - [x] Reynolds number sweep implemented
+  - [x] Phase diagram generation working
+  - [x] Classification logic (needs calibration)
 
-- [ ] **Infrastructure**
-  - [ ] Docker Compose local dev environment
-  - [ ] AWS staging environment deployed
-  - [ ] Monitoring (Sentry) configured
-  - [ ] CI/CD pipeline (GitHub Actions)
+- [x] **Topology Pipeline**
+  - [x] Ripser integration complete
+  - [x] Vorticity field generation (basic)
+  - [x] dim(H¹ₑₚᵢ) extraction functional
 
-- [ ] **Metrics Baseline**
-  - [ ] 100+ beta users active
-  - [ ] ASR accuracy measured (current WER: __%)
-  - [ ] Error detection accuracy measured (current: __%)
-  - [ ] False positive rate measured (current: __%)
-  - [ ] Day-7 retention measured (current: __%)
+- [ ] **Infrastructure** (Phase 2 requirements)
+  - [ ] GPU cluster access (for 10⁶ steps/sec)
+  - [ ] DNS data storage configured (50GB+)
+  - [ ] Houdini Python API installed
+  - [ ] Gudhi library installed (advanced features)
 
-**Status**: ⚠️ If any prerequisites are incomplete, complete Phase 1 first before proceeding.
+**Status**: ✅ Phase 1 validated, ready for Phase 2
 
 ---
 
-## Week 9: Data Collection & Analysis
+## Week 1-2: DNS Data Integration
 
-**Goal**: Collect and analyze user data to inform Phase 2 improvements.
+**Goal**: Integrate real turbulence data from Johns Hopkins Turbulence Database
 
-### 9.1: Backend Data Export Pipeline
-
-**Priority**: P0 (Critical)
-**Estimated Time**: 2 days
-**Owner**: Backend Engineer
-
-**Tasks**:
-- [ ] Create `/admin/export/recitations` endpoint
-  - [ ] Authenticate admin users only
-  - [ ] Support date range filters
-  - [ ] Export fields: user_id, verse_id, audio_s3_key, transcription, asr_confidence, errors, accuracy, user_feedback
-  - [ ] Stream large datasets (don't load all in memory)
-  - [ ] Export to CSV/JSON format
-
-- [ ] Create data export script
-  - [ ] Script: `backend/scripts/export-recitations.ts`
-  - [ ] Download audio files from S3
-  - [ ] Organize by: recitations/{user_id}/{verse_id}/{timestamp}.wav
-  - [ ] Create manifest.json with metadata
-  - [ ] Compress to .tar.gz
-
-- [ ] Testing
-  - [ ] Test with 1000+ recitations
-  - [ ] Verify data integrity
-  - [ ] Document export process
-
-**Acceptance Criteria**:
-- Export 1000+ recitations with metadata
-- Audio files downloadable and playable
-- CSV includes all required fields
-
----
-
-### 9.2: ASR Accuracy Analysis
+### Task 2.1: DNS Data Acquisition
 
 **Priority**: P0 (Critical)
 **Estimated Time**: 3 days
-**Owner**: ML Engineer
+**Owner**: Code Agent
 
-**Tasks**:
-- [ ] Manual transcription labeling
-  - [ ] Sample 100 recitations (stratified by confidence score)
-  - [ ] Hire 2 Arabic speakers for ground truth labeling
-  - [ ] Create labeling guidelines document
-  - [ ] Use Label Studio or similar tool
-  - [ ] Store labels in `ml/data/ground_truth_labels.json`
+**Subtasks**:
+- [ ] Set up JHTDB API access
+  - [ ] Create account at http://turbulence.pha.jhu.edu/
+  - [ ] Install pyJHTDB: `pip install pyJHTDB`
+  - [ ] Configure authentication credentials
+  - [ ] Test basic data query
 
-- [ ] Calculate accuracy metrics
-  - [ ] Script: `ml/scripts/analyze_asr_accuracy.py`
-  - [ ] Compute Word Error Rate (WER) = (S + D + I) / N
-    - S = Substitutions, D = Deletions, I = Insertions, N = Total words
-  - [ ] Break down by:
-    - Confidence score ranges (0-0.6, 0.6-0.8, 0.8-1.0)
-    - Verse length (short <10 words, medium 10-20, long >20)
-    - User experience level (new, intermediate, advanced)
-  - [ ] Compare to baseline Whisper
+- [ ] Download isotropic turbulence dataset
+  - [ ] Dataset: `isotropic1024coarse` (Re_λ ≈ 418)
+  - [ ] Time snapshot: t = 0.364 (peak dissipation)
+  - [ ] Volume: 256³ subcube (manageable size)
+  - [ ] Fields: velocity (u, v, w), vorticity (ω_x, ω_y, ω_z)
+  - [ ] Storage: `data/dns/jhtdb_iso1024/`
 
-- [ ] Error pattern analysis
-  - [ ] Identify most common substitution errors
-  - [ ] Analyze phonetically similar mistakes
-  - [ ] Document dialect variations
-  - [ ] Create error taxonomy
+- [ ] Data validation
+  - [ ] Verify incompressibility: ∇·u = 0
+  - [ ] Check vorticity: ω = ∇×u
+  - [ ] Compute energy spectrum E(k)
+  - [ ] Verify Kolmogorov k^(-5/3) inertial range
+
+**Files to Create**:
+- `epipelagic/data/jhtdb_loader.py` (API interface)
+- `scripts/download_dns_data.py` (download script)
+- `data/dns/README.md` (dataset documentation)
 
 **Acceptance Criteria**:
-- WER calculated on 100+ labeled samples
-- Report showing accuracy breakdown by category
-- Top 20 error patterns identified
+- 256³ velocity field downloaded and validated
+- Vorticity computed and verified
+- Energy spectrum shows k^(-5/3) scaling
 
 ---
 
-### 9.3: Error Detection Analysis
+### Task 2.2: DNS Data Processing Pipeline
 
 **Priority**: P0 (Critical)
-**Estimated Time**: 2 days
-**Owner**: ML Engineer
+**Estimated Time**: 4 days
+**Owner**: Code Agent
 
-**Tasks**:
-- [ ] Analyze user feedback
-  - [ ] Query all "incorrect detection" flags from DB
-  - [ ] Calculate false positive rate: FP / (FP + TN)
-  - [ ] Identify patterns in false positives
-  - [ ] Document edge cases
+**Subtasks**:
+- [ ] Implement efficient data loading
+  - [ ] HDF5 format reader (lazy loading)
+  - [ ] Memory-mapped arrays for large fields
+  - [ ] Parallel I/O for multi-file datasets
+  - [ ] Progress bar for long operations
 
-- [ ] Precision/Recall analysis
-  - [ ] Create confusion matrix
-  - [ ] Calculate:
-    - Precision = TP / (TP + FP)
-    - Recall = TP / (TP + FN)
-    - F1 Score = 2 * (Precision * Recall) / (Precision + Recall)
-  - [ ] Compare to target: >85% accuracy, <15% FPR
+- [ ] Vorticity extraction
+  - [ ] Spectral differentiation (FFT-based ∇×)
+  - [ ] Handle periodic boundary conditions
+  - [ ] Accuracy: 6th-order finite differences (backup)
+  - [ ] Validate against JHTDB provided vorticity
 
-- [ ] Report generation
-  - [ ] Script: `ml/scripts/analyze_error_detection.py`
-  - [ ] Generate PDF report with charts
-  - [ ] Share with team for review
+- [ ] Level set extraction
+  - [ ] Marching cubes algorithm (scikit-image)
+  - [ ] Multiple thresholds: [0.1, 0.3, 0.5, 0.7, 0.9] × ω_max
+  - [ ] Output: point clouds for Ripser
+  - [ ] Optimization: octree spatial indexing
+
+- [ ] Filtration construction
+  - [ ] Sublevel set filtration: {x : ω(x) ≤ θ}
+  - [ ] Distance matrix computation (GPU-accelerated)
+  - [ ] Sparse representation (radius filtration)
+
+**Files to Create**:
+- `epipelagic/data/dns_processor.py` (main processor)
+- `epipelagic/topology/level_sets.py` (level set extraction)
+- `epipelagic/topology/filtration.py` (filtration builder)
 
 **Acceptance Criteria**:
-- False positive rate calculated
-- Report showing top failure cases
-- Action items for improvement
+- Load 256³ DNS field in <10 seconds
+- Extract vorticity with <1% error
+- Generate filtration with 50 levels in <30 seconds
 
 ---
 
-### 9.4: User Feedback Analysis
+### Week 1-2 Deliverables
+- [ ] JHTDB data downloaded (256³ isotropic turbulence)
+- [ ] DNS processing pipeline operational
+- [ ] Validation report: energy spectra, vorticity accuracy
+- [ ] Documentation: data format, API usage
+
+---
+
+## Week 3-4: Advanced Persistent Homology
+
+**Goal**: Enhance topology extraction with advanced features and validation
+
+### Task 2.3: Multi-Scale Persistent Homology
+
+**Priority**: P0 (Critical)
+**Estimated Time**: 5 days
+**Owner**: Code Agent
+
+**Subtasks**:
+- [ ] Gudhi integration (advanced features)
+  - [ ] Install: `conda install -c conda-forge gudhi`
+  - [ ] Alpha complex construction (geometric)
+  - [ ] Cubical complex (for voxel data)
+  - [ ] Compare Ripser vs Gudhi performance
+
+- [ ] Multi-parameter persistence
+  - [ ] 2D persistence: (vorticity threshold, scale)
+  - [ ] Vineyard updates (temporal evolution)
+  - [ ] Zigzag persistence (for time series)
+
+- [ ] Barcode analysis
+  - [ ] Persistence landscape computation
+  - [ ] Bottleneck/Wasserstein distances
+  - [ ] Statistical significance testing
+  - [ ] Persistent entropy
+
+- [ ] Feature extraction
+  - [ ] Birth/death coordinates
+  - [ ] Representative cycles (homology generators)
+  - [ ] Persistence images (ML-ready features)
+  - [ ] Betti numbers vs threshold
+
+**Files to Create**:
+- `epipelagic/topology/gudhi_interface.py`
+- `epipelagic/topology/barcode_analysis.py`
+- `epipelagic/topology/persistence_features.py`
+
+**Acceptance Criteria**:
+- Gudhi and Ripser produce consistent results
+- Persistence landscapes computed
+- Representative cycles extracted for visualization
+
+---
+
+### Task 2.4: Epipelagic Cohomology Refinement
 
 **Priority**: P1 (Important)
-**Estimated Time**: 2 days
-**Owner**: Product/Frontend Engineer
-
-**Tasks**:
-- [ ] User interviews
-  - [ ] Schedule 10 interviews with active users
-  - [ ] Prepare interview script
-  - [ ] Focus areas:
-    - Error detection trust
-    - Spaced repetition experience
-    - Feature requests
-    - Pain points
-  - [ ] Record and transcribe interviews
-
-- [ ] Quantitative analysis
-  - [ ] Analyze app analytics (screen time, button clicks)
-  - [ ] Identify drop-off points
-  - [ ] Calculate feature usage rates
-  - [ ] Retention cohorts (Day-1, Day-7, Day-30)
-
-- [ ] Prioritization
-  - [ ] Create improvement backlog
-  - [ ] Prioritize using RICE framework:
-    - Reach * Impact * Confidence / Effort
-  - [ ] Document in TASKS.md
-
-**Acceptance Criteria**:
-- 10 user interviews completed
-- Analytics report generated
-- Prioritized improvement list
-
----
-
-### Week 9 Deliverables
-- [ ] 1000+ recitations exported and labeled
-- [ ] ASR accuracy report (WER, error patterns)
-- [ ] Error detection analysis (FPR, precision/recall)
-- [ ] User feedback summary
-- [ ] Phase 2 priorities finalized
-
----
-
-## Week 10-11: Whisper Fine-Tuning
-
-**Goal**: Fine-tune Whisper model on Quranic recitations to reduce WER from ~15% to <8%.
-
-### 10.1: Dataset Acquisition
-
-**Priority**: P0 (Critical)
-**Estimated Time**: 3 days
-**Owner**: ML Engineer
-
-**Tasks**:
-- [ ] Research existing datasets
-  - [ ] Check Tarteel.ai open dataset
-  - [ ] Check Quran Audio dataset (everyayah.com)
-  - [ ] Contact Islamic organizations for data
-  - [ ] License verification
-
-- [ ] Data collection options
-  - **Option A**: Use existing public dataset
-    - [ ] Download Tarteel dataset (~500 hours)
-    - [ ] Verify quality and licensing
-  - **Option B**: Collect from users
-    - [ ] Incentivize users to donate recordings
-    - [ ] Ensure informed consent
-  - **Option C**: Hire reciters
-    - [ ] Budget: $2000-5000 for 100 hours
-    - [ ] Find professional Qaris
-
-- [ ] Dataset preparation
-  - [ ] Format: Audio files + transcription JSON
-  - [ ] Directory structure:
-    ```
-    ml/data/fine_tuning/
-    ├── audio/
-    │   ├── 001_001_001.wav
-    │   ├── 001_002_001.wav
-    │   └── ...
-    ├── transcriptions.json
-    └── metadata.json
-    ```
-  - [ ] Validate all files (16kHz, mono, WAV format)
-  - [ ] Total target: 100-500 hours
-
-**Acceptance Criteria**:
-- 100+ hours of Quranic audio with transcriptions
-- All files validated and formatted correctly
-- Dataset split ready (train/val/test)
-
----
-
-### 10.2: Fine-Tuning Pipeline Setup
-
-**Priority**: P0 (Critical)
 **Estimated Time**: 4 days
-**Owner**: ML Engineer
+**Owner**: Code Agent (with Sonnet consultation)
 
-**Tasks**:
-- [ ] Environment setup
-  - [ ] GPU instance: AWS p3.2xlarge or equivalent
-  - [ ] Install dependencies:
-    - PyTorch 2.0+
-    - Transformers (Hugging Face)
-    - Datasets library
-    - Whisper model weights
-  - [ ] Configure CUDA/cuDNN
+**Subtasks**:
+- [ ] Implement cascade complex
+  - [ ] C⁰ = ⊕ ℝE_n (shell energies)
+  - [ ] C¹ = ⊕ ℝT_{nm} (transfers)
+  - [ ] Boundary operator d⁰: C⁰ → C¹
+  - [ ] Coboundary operator d¹: C¹ → C²
 
-- [ ] Data preprocessing
-  - [ ] Script: `ml/src/training/prepare_dataset.py`
-  - [ ] Convert audio to 16kHz mono
-  - [ ] Normalize audio levels
-  - [ ] Create Hugging Face Dataset format
-  - [ ] Split: 80% train, 10% val, 10% test
-  - [ ] Data augmentation (optional):
-    - Speed perturbation (0.9x - 1.1x)
-    - Background noise injection
-    - Pitch shift
+- [ ] Direct transfer measurement
+  - [ ] Taichi kernel: compute T_{nm} from nonlinear terms
+  ```python
+  @ti.kernel
+  def compute_transfer_matrix(self):
+      # T_{nm} = -∫ u_n · P_m[(u·∇)u] dx
+      for n, m in ti.ndrange(N_shells, N_shells):
+          if m > n:  # Forward cascade only
+              self.T[n, m] = compute_triadic_interaction(n, m)
+  ```
+  - [ ] Validate conservation: Σ_m T_{nm} = -dE_n/dt
 
-- [ ] Fine-tuning script
-  - [ ] Script: `ml/src/training/finetune_whisper.py`
-  - [ ] Base model: `openai/whisper-medium` or `whisper-large-v3`
-  - [ ] Hyperparameters:
-    ```python
-    learning_rate = 1e-5
-    batch_size = 16  # Adjust based on GPU memory
-    epochs = 5-10
-    warmup_steps = 500
-    gradient_accumulation_steps = 2
-    fp16 = True  # Mixed precision training
-    ```
-  - [ ] Use LoRA (Low-Rank Adaptation) for efficiency
-  - [ ] Implement early stopping (patience=3)
-  - [ ] Save checkpoints every epoch
+- [ ] Cohomology computation
+  - [ ] Exact sequences: 0 → H⁰ → H¹ → H² → 0
+  - [ ] Kernel/image computations (SVD)
+  - [ ] Rank computation: dim(H¹) = rank(ker d¹) - rank(im d⁰)
+  - [ ] Compare to persistent homology dim(H¹_epi)
+
+**Files to Modify**:
+- `epipelagic/cascade/taichi_solver.py` (add transfer measurement)
+- `epipelagic/core/complex.py` (implement cascade complex)
+
+**Files to Create**:
+- `epipelagic/core/transfer_matrix.py`
 
 **Acceptance Criteria**:
-- Training pipeline runs without errors
-- Model checkpoints saved
-- Training logs available
+- Transfer matrix T_{nm} measured directly from dynamics
+- Energy conservation verified: |ΣT_{nm} + dE/dt| < 10⁻⁶
+- dim(H¹_cascade) computed and compared to dim(H¹_persistent)
 
 ---
 
-### 10.3: Model Training & Evaluation
-
-**Priority**: P0 (Critical)
-**Estimated Time**: 5 days (includes compute time)
-**Owner**: ML Engineer
-
-**Tasks**:
-- [ ] Train fine-tuned model
-  - [ ] Run training script
-  - [ ] Monitor metrics:
-    - Training loss
-    - Validation WER
-    - GPU utilization
-  - [ ] Expected training time: 12-24 hours (100 hours of audio)
-  - [ ] Use TensorBoard for visualization
-
-- [ ] Model evaluation
-  - [ ] Script: `ml/src/training/evaluate_whisper.py`
-  - [ ] Compute WER on test set
-  - [ ] Compare to baseline Whisper
-  - [ ] Break down by:
-    - Verse length
-    - Speaker characteristics
-    - Audio quality
-  - [ ] Target: WER < 8%
-
-- [ ] Model optimization
-  - [ ] Quantize to INT8 (optional, for speed)
-  - [ ] Convert to ONNX format (optional)
-  - [ ] Test inference speed
-  - [ ] Target latency: <1.5s (p95)
-
-**Acceptance Criteria**:
-- Fine-tuned model achieves WER < 8% on test set
-- Model size reasonable (<3GB)
-- Inference latency acceptable
+### Week 3-4 Deliverables
+- [ ] Gudhi advanced features integrated
+- [ ] Persistence landscapes and statistical measures
+- [ ] Direct transfer measurement in cascade solver
+- [ ] Cohomology comparison: cascade vs persistent
 
 ---
 
-### 10.4: Model Deployment
+## Week 5-6: Realistic Vorticity Generation
 
-**Priority**: P0 (Critical)
-**Estimated Time**: 2 days
-**Owner**: ML + Backend Engineer
+**Goal**: Generate realistic synthetic turbulence for validation
 
-**Tasks**:
-- [ ] Model hosting options
-  - **Option A**: Self-hosted FastAPI
-    - [ ] Update `ml/src/inference/asr_service.py`
-    - [ ] Load fine-tuned model
-    - [ ] Deploy to AWS EC2 (g4dn.xlarge GPU instance)
-  - **Option B**: AWS SageMaker
-    - [ ] Create SageMaker endpoint
-    - [ ] Deploy model
-    - [ ] Set up auto-scaling
-  - **Option C**: OpenAI fine-tuned API (if supported)
-
-- [ ] API integration
-  - [ ] Update `backend/src/services/asrService.ts`
-  - [ ] Add model version selector (baseline vs fine-tuned)
-  - [ ] Implement A/B testing (50% baseline, 50% fine-tuned)
-  - [ ] Log all results for comparison
-
-- [ ] Testing
-  - [ ] Integration tests
-  - [ ] Load testing (100 concurrent requests)
-  - [ ] Monitor cost per transcription
-
-**Acceptance Criteria**:
-- Fine-tuned model deployed and accessible via API
-- A/B testing active
-- Monitoring in place
-
----
-
-### Week 10-11 Deliverables
-- [ ] Fine-tuned Whisper model (WER < 8%)
-- [ ] Model deployed to production (A/B testing)
-- [ ] Evaluation report comparing baseline vs fine-tuned
-- [ ] Cost analysis and projections
-
----
-
-## Week 12: ML Error Classifier
-
-**Goal**: Build ML-based error classifier to reduce false positive rate from 15% to <5%.
-
-### 12.1: Feature Engineering
-
-**Priority**: P0 (Critical)
-**Estimated Time**: 2 days
-**Owner**: ML Engineer
-
-**Tasks**:
-- [ ] Define features
-  - [ ] ASR confidence score (0-1)
-  - [ ] Levenshtein distance (normalized)
-  - [ ] Phonetic similarity (RapidFuzz)
-  - [ ] Word count difference
-  - [ ] Character count difference
-  - [ ] Verse difficulty level
-  - [ ] User experience level (total verses memorized)
-  - [ ] Average accuracy for this verse (historical)
-  - [ ] Time since last practice
-
-- [ ] Feature extraction script
-  - [ ] Script: `ml/src/error_classifier/extract_features.py`
-  - [ ] Process all labeled data from Week 9
-  - [ ] Create feature matrix (CSV)
-  - [ ] Handle missing values
-  - [ ] Feature normalization (StandardScaler)
-
-- [ ] Feature analysis
-  - [ ] Correlation matrix
-  - [ ] Feature importance (Random Forest)
-  - [ ] Remove redundant features
-
-**Acceptance Criteria**:
-- Feature matrix created with 1000+ samples
-- Top 10 most important features identified
-- Feature engineering pipeline documented
-
----
-
-### 12.2: Model Training
-
-**Priority**: P0 (Critical)
-**Estimated Time**: 3 days
-**Owner**: ML Engineer
-
-**Tasks**:
-- [ ] Prepare training data
-  - [ ] Labels: 0 (no error) vs 1 (error detected)
-  - [ ] Handle class imbalance (SMOTE or class weights)
-  - [ ] Split: 80% train, 20% test
-  - [ ] Stratified sampling
-
-- [ ] Train multiple models
-  - [ ] Logistic Regression (baseline)
-  - [ ] Random Forest
-  - [ ] Gradient Boosting (XGBoost)
-  - [ ] Neural Network (simple MLP)
-  - [ ] Script: `ml/src/error_classifier/train_classifier.py`
-
-- [ ] Hyperparameter tuning
-  - [ ] Use GridSearchCV or Optuna
-  - [ ] 5-fold cross-validation
-  - [ ] Optimize for F1 score (balance precision/recall)
-  - [ ] Tune threshold (default 0.5 may not be optimal)
-
-- [ ] Model evaluation
-  - [ ] Test set metrics:
-    - Precision (minimize false positives)
-    - Recall (don't miss real errors)
-    - F1 Score
-    - ROC-AUC
-  - [ ] Confusion matrix
-  - [ ] Compare all models
-  - [ ] Select best model (target: FPR < 5%)
-
-**Acceptance Criteria**:
-- Trained classifier achieves FPR < 5%, Recall > 85%
-- Model comparison report
-- Best model saved as `ml/models/error_classifier_v1.pkl`
-
----
-
-### 12.3: Production Integration
-
-**Priority**: P0 (Critical)
-**Estimated Time**: 2 days
-**Owner**: ML + Backend Engineer
-
-**Tasks**:
-- [ ] Model deployment
-  - [ ] Create FastAPI endpoint: `/ml/classify-errors`
-  - [ ] Load trained model
-  - [ ] Implement feature extraction in production
-  - [ ] Script: `ml/src/inference/error_classifier_service.py`
-
-- [ ] Backend integration
-  - [ ] Update `backend/src/services/errorClassifierService.ts`
-  - [ ] Call ML service for classification
-  - [ ] Fallback to rule-based if ML fails
-  - [ ] A/B testing: 50% rule-based, 50% ML
-
-- [ ] Monitoring
-  - [ ] Log all predictions
-  - [ ] Track false positive rate (user feedback)
-  - [ ] Alert if FPR > 8%
-  - [ ] Retrain trigger (weekly)
-
-**Acceptance Criteria**:
-- ML classifier deployed to production
-- A/B testing active
-- Monitoring dashboard showing FPR
-
----
-
-### Week 12 Deliverables
-- [ ] ML error classifier (FPR < 5%)
-- [ ] Deployed to production with A/B testing
-- [ ] Monitoring and alerting configured
-- [ ] Model retraining pipeline documented
-
----
-
-## Week 13-14: Bret Victor Visualizations
-
-**Goal**: Implement 3 interactive visualizations to make learning "understandable".
-
-### 13.1: Memory Strength Visualizer
-
-**Priority**: P0 (Critical)
-**Estimated Time**: 4 days
-**Owner**: Frontend Engineer
-
-**Tasks**:
-- [ ] Backend API
-  - [ ] Endpoint: `GET /progress/memory-curve/:verseId`
-  - [ ] Calculate memory strength over time:
-    ```typescript
-    memoryStrength(t) = initialStrength * e^(-t / easeFactor)
-    ```
-  - [ ] Return time series data:
-    ```json
-    {
-      "verseId": 1,
-      "currentStrength": 0.85,
-      "history": [
-        { "date": "2025-11-01", "strength": 1.0, "event": "memorized" },
-        { "date": "2025-11-02", "strength": 0.95, "event": "review" },
-        { "date": "2025-11-09", "strength": 0.85, "event": "review" }
-      ],
-      "nextReview": "2025-11-16",
-      "forgettingCurve": [
-        { "daysFromNow": 0, "predictedStrength": 0.85 },
-        { "daysFromNow": 7, "predictedStrength": 0.70 },
-        { "daysFromNow": 14, "predictedStrength": 0.50 }
-      ]
-    }
-    ```
-
-- [ ] Frontend component
-  - [ ] Component: `frontend/src/components/MemoryVisualizer.tsx`
-  - [ ] Use Recharts or Victory Native
-  - [ ] Show:
-    - Line chart: Memory strength over time
-    - Dotted line: Predicted forgetting curve
-    - Markers: Review events
-    - Interactive: Tap to see details
-  - [ ] Color coding:
-    - Green: Strength > 80%
-    - Yellow: 50-80%
-    - Red: < 50%
-
-- [ ] Interactivity
-  - [ ] Tap on date to see review details
-  - [ ] Swipe to explore different verses
-  - [ ] "What if" mode: Adjust review timing, see predicted impact
-  - [ ] Tooltip showing next review date
-
-**Acceptance Criteria**:
-- Memory curve displays for any verse
-- Interactive and smooth (60fps)
-- Users understand their memory state
-
----
-
-### 13.2: Pronunciation Explorer (Waveform Comparison)
+### Task 2.5: Structured Vortex Models
 
 **Priority**: P1 (Important)
 **Estimated Time**: 5 days
-**Owner**: Frontend + ML Engineer
+**Owner**: Haiku Agent (prototypes), Code Agent (production)
 
-**Tasks**:
-- [ ] Backend processing
-  - [ ] Endpoint: `GET /practice/pronunciation-analysis/:recitationId`
-  - [ ] Load user recording from S3
-  - [ ] Load reference Qari recording
-  - [ ] Extract waveforms (using librosa)
-  - [ ] Align audio (DTW - Dynamic Time Warping)
-  - [ ] Return:
-    ```json
-    {
-      "userWaveform": [...],  // Amplitude values
-      "qariWaveform": [...],
-      "alignment": [
-        { "userTime": 0.5, "qariTime": 0.45, "similarity": 0.92 }
-      ],
-      "phonemeTimestamps": [
-        { "phoneme": "ب", "userTime": 0.1, "qariTime": 0.09 }
-      ]
-    }
-    ```
+**Subtasks**:
+- [ ] Lamb-Oseen vortex implementation
+  ```python
+  # ω(r) = (Γ/πr_c²) exp(-r²/r_c²)
+  # u_θ(r) = (Γ/2πr)(1 - exp(-r²/r_c²))
+  ```
+  - [ ] Single vortex: circulation Γ, core radius r_c
+  - [ ] Parameters from turbulence: Γ ~ √(E_n), r_c ~ 1/k_n
+  - [ ] 2D and 3D versions
 
-- [ ] Frontend component
-  - [ ] Component: `frontend/src/components/PronunciationExplorer.tsx`
-  - [ ] Dual waveform display (user vs Qari)
-  - [ ] Synchronized playback
-  - [ ] Click on waveform to play that section
-  - [ ] Highlight differences (low similarity areas)
-  - [ ] Phoneme-level markers
+- [ ] Vortex array configurations
+  - [ ] Karman vortex street
+  - [ ] Hexagonal vortex lattice
+  - [ ] Random vortex positions (Poisson distribution)
+  - [ ] Multi-scale vortex hierarchy (fractal-like)
 
-- [ ] Advanced features (optional)
-  - [ ] Spectrogram view (frequency analysis)
-  - [ ] Playback speed control (0.5x - 1.5x)
-  - [ ] Loop problematic sections
-  - [ ] Export comparison video
+- [ ] Vortex dynamics
+  - [ ] Point vortex equations (fast approximation)
+  - [ ] Vortex merging and reconnection
+  - [ ] Time evolution: export sequences for vineyard
+
+- [ ] Energy spectrum matching
+  - [ ] Target: E(k) ~ k^(-5/3) (Kolmogorov)
+  - [ ] Adjust vortex parameters to match DNS
+  - [ ] Validate statistics: skewness, kurtosis
+
+**Files to Create**:
+- `epipelagic/synthetic/lamb_oseen.py`
+- `epipelagic/synthetic/vortex_arrays.py`
+- `epipelagic/synthetic/vortex_dynamics.py`
 
 **Acceptance Criteria**:
-- Waveform comparison displays correctly
-- User can identify pronunciation differences
-- Performance acceptable (renders < 1s)
+- Lamb-Oseen vortex matches analytical solution
+- Vortex array produces realistic energy spectrum
+- dim(H¹_epi) from synthetic matches DNS trends
 
 ---
 
-### 13.3: Spaced Repetition Explorer
+### Task 2.6: DNS-Informed Synthesis
+
+**Priority**: P2 (Nice to have)
+**Estimated Time**: 3 days
+**Owner**: Haiku Agent
+
+**Subtasks**:
+- [ ] Extract vortex cores from DNS
+  - [ ] Q-criterion: Q = ½(|Ω|² - |S|²) > threshold
+  - [ ] λ₂-criterion: 2nd eigenvalue of S² + Ω²
+  - [ ] Vortex core positions and circulation
+
+- [ ] Fit vortex models to DNS
+  - [ ] Extract r_c, Γ from each detected vortex
+  - [ ] Statistical distributions of parameters
+  - [ ] Reynolds number scaling
+
+- [ ] Hybrid synthesis
+  - [ ] DNS vortex positions + analytical velocity
+  - [ ] Coarse DNS + synthetic small scales
+  - [ ] Interpolation between DNS snapshots
+
+**Files to Create**:
+- `epipelagic/synthetic/vortex_detection.py`
+- `epipelagic/synthetic/dns_informed_synthesis.py`
+
+**Acceptance Criteria**:
+- Vortex detection identifies cores in DNS
+- Synthetic fields match DNS statistics
+
+---
+
+### Week 5-6 Deliverables
+- [ ] Lamb-Oseen vortex models implemented
+- [ ] Vortex arrays with realistic E(k) spectrum
+- [ ] DNS vortex detection and fitting
+- [ ] Validation: synthetic vs DNS topology
+
+---
+
+## Week 7-8: Finiteness Validation
+
+**Goal**: Validate Theorem C empirically: dim(H¹ₑₚᵢ) ≤ C log(Re)
+
+### Task 2.7: Large-Scale Reynolds Sweep
+
+**Priority**: P0 (Critical)
+**Estimated Time**: 5 days
+**Owner**: Code Agent (requires GPU cluster)
+
+**Subtasks**:
+- [ ] Extended Reynolds range
+  - [ ] Re ∈ [100, 10⁶] (100 points, log-spaced)
+  - [ ] Multiple cascade configurations: 3, 5, 8, 10 shells
+  - [ ] Multiple realizations (N=20) per Re for statistics
+
+- [ ] GPU cluster deployment
+  - [ ] Deploy to AWS/GCP GPU instance (A100 recommended)
+  - [ ] Parallelize over Re values (MPI or Ray)
+  - [ ] Estimated runtime: 10⁴ runs × 10³ steps/run / 10⁶ steps/sec = ~10 seconds
+  - [ ] Total with topology: ~2 hours
+
+- [ ] Systematic topology extraction
+  - [ ] For each Re:
+    1. Integrate cascade to steady state
+    2. Generate vorticity field (3 methods: simple, Lamb-Oseen, DNS-informed)
+    3. Compute persistent homology
+    4. Extract dim(H¹_epi) with threshold optimization
+  - [ ] Store all barcodes for later analysis
+
+- [ ] Statistical analysis
+  - [ ] Mean and std of dim(H¹_epi) vs Re
+  - [ ] Fit: dim(H¹) = a log(Re) + b
+  - [ ] Confidence intervals (bootstrap)
+  - [ ] Outlier detection and analysis
+
+**Scripts to Create**:
+- `scripts/large_scale_reynolds_sweep.py` (main driver)
+- `scripts/deploy_gpu_cluster.sh` (deployment)
+- `scripts/analyze_finiteness_bound.py` (statistical analysis)
+
+**Acceptance Criteria**:
+- 100 Reynolds numbers tested with N=20 realizations each
+- dim(H¹_epi) vs log(Re) fit with R² > 0.7
+- Positive coefficient a > 0 (increasing with Re)
+- Bounded growth verified: dim(H¹) ≤ C log(Re) with C ≈ 2-5
+
+---
+
+### Task 2.8: Regime Stratification Validation
+
+**Priority**: P1 (Important)
+**Estimated Time**: 3 days
+**Owner**: Haiku Agent (exploration), Sonnet Agent (theory)
+
+**Subtasks**:
+- [ ] Recalibrate regime boundaries
+  - [ ] Use measured T_{nm} (not estimated)
+  - [ ] Compute ratios: ρ₁ = T₀₁/E₀, ρ₂ = T₁₂/T₀₁
+  - [ ] Scan (ρ₁, ρ₂) space
+
+- [ ] Classify regimes by topology
+  - [ ] Laminar: dim(H¹) = 0 (trivial cohomology)
+  - [ ] Epipelagic: 0 < dim(H¹) ≤ C log(Re)
+  - [ ] Mesopelagic: dim(H¹) > C log(Re)
+  - [ ] Bathypelagic: dim(H¹) → ∞ (full turbulence)
+
+- [ ] Phase diagram refinement
+  - [ ] 2D: (Re, ν) space
+  - [ ] 3D: (Re, ν, forcing) space
+  - [ ] Overlay topology measurements
+  - [ ] Identify phase boundaries
+
+**Files to Create**:
+- `epipelagic/cascade/regime_classifier.py`
+- `scripts/validate_stratification.py`
+
+**Acceptance Criteria**:
+- Regime boundaries identified from topology
+- Phase diagram matches theoretical predictions
+- Epipelagic regime occupies significant parameter space
+
+---
+
+### Week 7-8 Deliverables
+- [ ] Large-scale Reynolds sweep (10⁴ simulations)
+- [ ] Finiteness bound validated: dim(H¹) ≤ C log(Re)
+- [ ] Regime stratification confirmed
+- [ ] Phase diagrams with topology overlay
+
+---
+
+## Week 9-10: Houdini Visualization
+
+**Goal**: Build interactive 3D visualizations for persistence and vorticity
+
+### Task 2.9: Houdini Python Integration
 
 **Priority**: P1 (Important)
 **Estimated Time**: 4 days
-**Owner**: Frontend + Backend Engineer
+**Owner**: Code Agent
 
-**Tasks**:
-- [ ] Backend simulation API
-  - [ ] Endpoint: `POST /reviews/simulate`
-  - [ ] Request:
-    ```json
-    {
-      "verseId": 1,
-      "scenario": {
-        "easeFactor": 2.5,
-        "qualityRatings": [4, 4, 5, 3]  // Future ratings
-      }
-    }
-    ```
-  - [ ] Simulate SM-2 algorithm
-  - [ ] Return predicted schedule:
-    ```json
-    {
-      "reviews": [
-        { "date": "2025-11-10", "interval": 7 },
-        { "date": "2025-11-17", "interval": 14 },
-        { "date": "2025-12-01", "interval": 28 }
-      ],
-      "predictedRetention": 0.85
-    }
-    ```
+**Subtasks**:
+- [ ] Set up Houdini environment
+  - [ ] Install Houdini Apprentice (free) or Indie
+  - [ ] Configure Python 3.11 in Houdini
+  - [ ] Install packages: numpy, scipy in Houdini's Python
+  - [ ] Test HOM (Houdini Object Model) API
 
-- [ ] Frontend component
-  - [ ] Component: `frontend/src/components/SpacedRepExplorer.tsx`
-  - [ ] Interactive sliders:
-    - Ease factor (1.3 - 3.0)
-    - Quality ratings (0-5)
-  - [ ] Real-time chart update
-  - [ ] Show:
-    - Review timeline
-    - Predicted retention curve
-    - Total reviews needed
-  - [ ] Compare strategies:
-    - Standard SM-2
-    - Aggressive (shorter intervals)
-    - Conservative (longer intervals)
+- [ ] Vorticity field visualization
+  - [ ] Import vorticity as volume VDB
+  - [ ] Isosurface rendering (marching cubes)
+  - [ ] Volume rendering with transfer functions
+  - [ ] Color mapping: ω → hue (blue=low, red=high)
 
-- [ ] Educational content
-  - [ ] Explain SM-2 algorithm in simple terms
-  - [ ] Tooltip: "Ease factor = how easy this verse is for you"
-  - [ ] Show impact of ratings on schedule
+- [ ] Persistence barcode 3D view
+  - [ ] Birth/death times → 3D tubes
+  - [ ] Color by persistence length
+  - [ ] Interactive filtering: threshold slider
+  - [ ] Link to spatial location (birth coordinates)
+
+- [ ] Representative cycles visualization
+  - [ ] Extract cycle generators from Ripser
+  - [ ] Convert to Houdini curves/surfaces
+  - [ ] Animate growth through filtration
+  - [ ] Highlight long-lived features
+
+**Files to Create**:
+- `epipelagic/visualization/houdini_api.py`
+- `houdini/hdas/PersistenceBarcodes.hda` (Digital Asset)
+- `houdini/hdas/VorticityVolume.hda`
 
 **Acceptance Criteria**:
-- Users can explore different scheduling strategies
-- Real-time feedback (<100ms latency)
-- Educational and intuitive
+- Load DNS vorticity in Houdini
+- Display persistence barcodes in 3D
+- Interactive exploration of persistent features
 
 ---
 
-### Week 13-14 Deliverables
-- [ ] Memory Strength Visualizer (live)
-- [ ] Pronunciation Explorer (live)
-- [ ] Spaced Repetition Explorer (live)
-- [ ] User testing with 10 beta users
-- [ ] Documentation and tutorial videos
+### Task 2.10: Interactive Explorable Visualizations
+
+**Priority**: P2 (Nice to have)
+**Estimated Time**: 4 days
+**Owner**: Code Agent
+
+**Subtasks**:
+- [ ] Web-based visualizations (Plotly Dash)
+  - [ ] Persistence diagram: (birth, death) scatter
+  - [ ] Barcode plot with filtering
+  - [ ] Energy spectrum E(k) vs k
+  - [ ] dim(H¹) vs Re with fit overlay
+
+- [ ] Linked views
+  - [ ] Click barcode → highlight in 3D
+  - [ ] Hover 3D vortex → show in persistence space
+  - [ ] Slider: threshold → update all views
+
+- [ ] Time evolution animations
+  - [ ] Vineyard diagrams (barcode evolution)
+  - [ ] Vortex merging/splitting events
+  - [ ] Energy cascade visualization
+
+- [ ] Export and sharing
+  - [ ] High-res images (4K)
+  - [ ] Videos (MP4, 60fps)
+  - [ ] Interactive HTML (for papers)
+  - [ ] Jupyter notebook examples
+
+**Files to Create**:
+- `epipelagic/visualization/plotly_dashboard.py`
+- `epipelagic/visualization/animations.py`
+- `examples/interactive_topology.ipynb`
+
+**Acceptance Criteria**:
+- Web dashboard deployed and functional
+- Linked 2D/3D views working
+- Animations exported for presentation
 
 ---
 
-## Week 15: Personalized Spaced Repetition
+### Week 9-10 Deliverables
+- [ ] Houdini HDA assets for topology visualization
+- [ ] Interactive web dashboard (Plotly Dash)
+- [ ] Time evolution animations
+- [ ] Example gallery with 10+ visualizations
 
-**Goal**: Adapt SM-2 intervals based on individual user performance.
+---
 
-### 15.1: User Performance Analysis
+## Week 11-12: Large-Scale Processing
+
+**Goal**: Handle DNS data at 10⁹+ points, optimize for production
+
+### Task 2.11: Scalability Optimization
 
 **Priority**: P0 (Critical)
-**Estimated Time**: 2 days
-**Owner**: ML Engineer
+**Estimated Time**: 5 days
+**Owner**: Code Agent
 
-**Tasks**:
-- [ ] Data collection
-  - [ ] Query all review events per user
-  - [ ] Calculate per-user metrics:
-    - Average accuracy
-    - Review completion rate
-    - Typical quality ratings
-    - Retention rate (% remembered after N days)
-  - [ ] Group users into cohorts:
-    - Fast learners (high accuracy, low repetitions)
-    - Average learners
-    - Struggling learners (low accuracy, many repetitions)
+**Subtasks**:
+- [ ] Memory optimization
+  - [ ] Streaming algorithms (don't load full field)
+  - [ ] Chunked processing (divide into blocks)
+  - [ ] Sparse data structures (octree, k-d tree)
+  - [ ] GPU memory management (pinned memory)
 
-- [ ] Retention modeling
-  - [ ] Script: `ml/src/spaced_repetition/analyze_retention.py`
-  - [ ] For each user, fit retention curve:
-    ```python
-    retention(t) = e^(-t / halfLife)
-    # halfLife varies per user
-    ```
-  - [ ] Estimate optimal intervals per user
-  - [ ] Identify over-scheduled vs under-scheduled users
+- [ ] Parallel processing
+  - [ ] Multi-GPU support (Taichi CUDA multi-device)
+  - [ ] MPI for distributed computing
+  - [ ] Ray for cluster orchestration
+  - [ ] Dask for large arrays
+
+- [ ] Performance profiling
+  - [ ] Identify bottlenecks (cProfile, line_profiler)
+  - [ ] Optimize hot paths (Numba JIT)
+  - [ ] Memory profiling (memory_profiler)
+  - [ ] GPU profiling (NVIDIA Nsight)
+
+- [ ] Algorithmic improvements
+  - [ ] Approximation algorithms (trade accuracy for speed)
+  - [ ] Coarse-graining for large-scale
+  - [ ] Hierarchical processing (multi-resolution)
+  - [ ] Incremental computation (avoid recomputing)
+
+**Target Performance**:
+- [ ] Process 1024³ DNS field in <10 minutes
+- [ ] Compute persistence on 10⁶ points in <1 minute
+- [ ] Memory usage < 16GB for 512³ field
 
 **Acceptance Criteria**:
-- Retention curves calculated for 100+ users
-- User cohorts identified
-- Optimal intervals estimated
+- Successfully process JHTDB 1024³ full dataset
+- Performance targets met
+- Profiling report with optimizations documented
 
 ---
 
-### 15.2: Adaptive SM-2 Algorithm
+### Task 2.12: Production Pipeline and Testing
 
 **Priority**: P0 (Critical)
-**Estimated Time**: 3 days
-**Owner**: ML Engineer
+**Estimated Time**: 4 days
+**Owner**: Code Agent
 
-**Tasks**:
-- [ ] Personalization model
-  - [ ] Script: `ml/src/spaced_repetition/personalized_sm2.py`
-  - [ ] Inputs:
-    - User's historical performance
-    - Current ease factor
-    - Verse difficulty
-    - Recent accuracy trend
-  - [ ] Adjustments:
-    - Shorten intervals if accuracy declining
-    - Lengthen intervals if consistently high accuracy
-    - Adjust ease factor based on user's retention rate
-  - [ ] Algorithm:
-    ```python
-    def personalized_interval(
-        base_interval: int,
-        user_half_life: float,
-        global_half_life: float = 14.0
-    ) -> int:
-        # Adjust interval based on user's learning speed
-        adjustment_factor = user_half_life / global_half_life
-        return round(base_interval * adjustment_factor)
-    ```
+**Subtasks**:
+- [ ] End-to-end pipeline
+  - [ ] Input: DNS data path or cascade parameters
+  - [ ] Processing: automatic detection of data type
+  - [ ] Output: HDF5 file with all results
+    - Persistence diagrams
+    - dim(H¹_epi)
+    - Representative cycles
+    - Metadata (Re, ν, resolution, etc.)
 
-- [ ] Implementation
-  - [ ] Update `backend/src/services/spacedRepetitionService.ts`
-  - [ ] Call ML service for personalized intervals
-  - [ ] Fallback to standard SM-2 for new users (< 10 reviews)
-  - [ ] Log all interval calculations
+- [ ] Command-line interface
+  ```bash
+  epipelagic-topology --input data/dns/iso1024.h5 \
+                      --output results/topology.h5 \
+                      --resolution 256 \
+                      --threshold-range 0.1,0.9 \
+                      --n-thresholds 50
+  ```
 
-- [ ] A/B testing setup
-  - [ ] Group A: Standard SM-2
-  - [ ] Group B: Personalized SM-2
-  - [ ] Randomly assign users (50/50)
-  - [ ] Track metrics: retention, completion rate, user satisfaction
+- [ ] Configuration management
+  - [ ] YAML config files
+  - [ ] Parameter validation
+  - [ ] Sensible defaults
+  - [ ] Config templates for common use cases
 
-**Acceptance Criteria**:
-- Personalized SM-2 implemented
-- A/B test running
-- Monitoring dashboard active
+- [ ] Comprehensive testing
+  - [ ] Unit tests: >90% coverage
+  - [ ] Integration tests: full pipeline
+  - [ ] Regression tests: known results
+  - [ ] Performance tests: benchmark suite
 
----
-
-### 15.3: User Control & Transparency
-
-**Priority**: P1 (Important)
-**Estimated Time**: 2 days
-**Owner**: Frontend Engineer
-
-**Tasks**:
-- [ ] Settings screen update
-  - [ ] Screen: `frontend/src/screens/SettingsScreen.tsx`
-  - [ ] Add "Learning Pace" section:
-    - [ ] Slider: Slower ←→ Faster
-    - [ ] Options: Conservative, Standard, Aggressive
-    - [ ] Explain impact on intervals
-  - [ ] Show personalized stats:
-    - "Your average retention: 85%"
-    - "Optimal review frequency: Every 10 days"
-
-- [ ] Transparency features
-  - [ ] On review screen, show:
-    - "Next review in 12 days (personalized for you)"
-    - "Standard schedule would be: 14 days"
-  - [ ] Allow override:
-    - "Review sooner" button
-    - "Skip this review" (if very confident)
+**Files to Create**:
+- `epipelagic/cli.py` (command-line interface)
+- `epipelagic/pipeline.py` (end-to-end orchestration)
+- `configs/topology_extraction.yaml` (config template)
+- `tests/integration/test_pipeline.py`
 
 **Acceptance Criteria**:
-- Users can control their learning pace
-- Personalization is transparent and understandable
-- Override options work correctly
+- CLI runs full pipeline with one command
+- Config files manage all parameters
+- Test coverage >90%
+- CI/CD pipeline runs all tests
 
 ---
 
-### Week 15 Deliverables
-- [ ] Personalized SM-2 algorithm deployed
-- [ ] A/B testing active (50% control, 50% personalized)
-- [ ] User controls and transparency features live
-- [ ] Monitoring retention improvements
-
----
-
-## Week 16: Iteration & Polish
-
-**Goal**: Optimize performance, fix bugs, polish UX based on feedback.
-
-### 16.1: Performance Optimization
-
-**Priority**: P0 (Critical)
-**Estimated Time**: 3 days
-**Owner**: Full Stack Team
-
-**Tasks**:
-- [ ] Backend optimization
-  - [ ] Identify slow queries (EXPLAIN ANALYZE)
-  - [ ] Add missing database indexes
-  - [ ] Optimize N+1 queries
-  - [ ] Implement query caching (Redis)
-  - [ ] Target: p95 latency < 500ms for all endpoints
-
-- [ ] Frontend optimization
-  - [ ] Reduce bundle size:
-    - [ ] Code splitting (React.lazy)
-    - [ ] Remove unused dependencies
-    - [ ] Tree shaking
-  - [ ] Optimize re-renders:
-    - [ ] Use React.memo for expensive components
-    - [ ] useMemo for heavy computations
-    - [ ] Avoid inline functions in props
-  - [ ] Image optimization:
-    - [ ] Compress images
-    - [ ] Use WebP format
-    - [ ] Lazy load images
-
-- [ ] ML service optimization
-  - [ ] Model quantization (INT8) if not done
-  - [ ] Batch inference for multiple requests
-  - [ ] GPU utilization monitoring
-  - [ ] Auto-scaling based on load
-
-**Acceptance Criteria**:
-- API p95 latency < 500ms
-- App launch time < 3s
-- 60fps maintained during animations
-
----
-
-### 16.2: Bug Fixes & Edge Cases
-
-**Priority**: P0 (Critical)
-**Estimated Time**: 2 days
-**Owner**: Full Stack Team
-
-**Tasks**:
-- [ ] Review bug reports from beta users
-  - [ ] Prioritize: P0 (critical), P1 (important), P2 (nice to have)
-  - [ ] Fix all P0 bugs
-  - [ ] Fix top 10 P1 bugs
-
-- [ ] Edge case handling
-  - [ ] Handle offline mode gracefully
-  - [ ] Handle low disk space
-  - [ ] Handle audio permission denied
-  - [ ] Handle API timeouts
-  - [ ] Handle invalid JWT tokens
-  - [ ] Handle concurrent requests
-
-- [ ] Error message improvements
-  - [ ] Replace generic errors with specific, helpful messages
-  - [ ] Add retry buttons where appropriate
-  - [ ] Provide contact support option
-
-**Acceptance Criteria**:
-- All P0 bugs fixed
-- Edge cases handled gracefully
-- Error messages user-friendly
-
----
-
-### 16.3: UX Polish
-
-**Priority**: P1 (Important)
-**Estimated Time**: 2 days
-**Owner**: Frontend Engineer
-
-**Tasks**:
-- [ ] Onboarding improvements
-  - [ ] Simplify to 3 steps maximum
-  - [ ] Add skip option
-  - [ ] Show value proposition clearly
-  - [ ] A/B test different flows
-
-- [ ] Microinteractions
-  - [ ] Loading skeletons (instead of spinners)
-  - [ ] Smooth transitions between screens
-  - [ ] Haptic feedback on important actions
-  - [ ] Success animations (celebrate achievements)
-
-- [ ] Accessibility
-  - [ ] Screen reader support
-  - [ ] Color contrast (WCAG AA)
-  - [ ] Font size adjustable
-  - [ ] Tap targets ≥ 44x44pt
-
-- [ ] Empty states
-  - [ ] Meaningful illustrations
-  - [ ] Clear calls to action
-  - [ ] Helpful hints
-
-**Acceptance Criteria**:
-- Onboarding completion rate > 80%
-- App feels smooth and polished
-- Accessibility audit passing
-
----
-
-### 16.4: Documentation & Testing
-
-**Priority**: P1 (Important)
-**Estimated Time**: 2 days
-**Owner**: Full Stack Team
-
-**Tasks**:
-- [ ] Update documentation
-  - [ ] Update CLAUDE.md with Phase 2 features
-  - [ ] Update API_REFERENCE.md
-  - [ ] Update ARCHITECTURE.md (new ML services)
-  - [ ] Create PHASE2_REPORT.md (results, learnings)
-
-- [ ] Testing coverage
-  - [ ] Backend unit tests > 80%
-  - [ ] Frontend component tests > 70%
-  - [ ] ML model tests (accuracy, edge cases)
-  - [ ] E2E tests for critical flows
-
-- [ ] Load testing
-  - [ ] Simulate 1000 concurrent users
-  - [ ] Monitor error rates, latency
-  - [ ] Identify bottlenecks
-  - [ ] Fix scalability issues
-
-**Acceptance Criteria**:
-- Documentation up to date
-- Test coverage meets targets
-- Load testing successful (no errors at 1000 users)
-
----
-
-### Week 16 Deliverables
-- [ ] All performance optimizations complete
-- [ ] All P0 bugs fixed
-- [ ] UX polished based on feedback
-- [ ] Documentation updated
-- [ ] Phase 2 ready for launch
+### Week 11-12 Deliverables
+- [ ] Scalable pipeline handling 10⁹+ points
+- [ ] CLI tool for end-to-end processing
+- [ ] Comprehensive test suite (>90% coverage)
+- [ ] Performance benchmarks documented
 
 ---
 
@@ -981,37 +654,30 @@
 
 ### Technical Metrics
 
-| Metric | Phase 1 Baseline | Phase 2 Target | Current |
-|--------|------------------|----------------|---------|
-| ASR Accuracy (WER) | ~15% | < 8% | - |
-| Error Detection FPR | ~15% | < 5% | - |
-| Error Detection Recall | ~85% | > 90% | - |
-| API p95 Latency | ~800ms | < 500ms | - |
-| App Bundle Size | ~20MB | < 15MB | - |
-| Memory Strength Viz | N/A | Live | - |
-| Pronunciation Explorer | N/A | Live | - |
-| Spaced Rep Explorer | N/A | Live | - |
-| Personalized SM-2 | N/A | A/B testing | - |
+| Metric | Target | Measurement Method |
+|--------|--------|-------------------|
+| DNS data integrated | ✅ | JHTDB 256³ downloaded and validated |
+| dim(H¹_epi) finiteness | dim ≤ C log(Re), C ≈ 2-5 | Reynolds sweep fit R² > 0.7 |
+| Topology accuracy | <5% error vs ground truth | Cross-validation: Ripser vs Gudhi |
+| Performance | 1024³ DNS in <10 min | Benchmark on GPU cluster |
+| Visualization quality | Interactive 3D + web | User testing (clarity, usability) |
+| Code coverage | >90% | pytest-cov report |
 
-### User Metrics
+### Research Outcomes
 
-| Metric | Phase 1 Baseline | Phase 2 Target | Current |
-|--------|------------------|----------------|---------|
-| Day-7 Retention | ~30% | > 40% | - |
-| Day-30 Retention | ~15% | > 20% | - |
-| User Satisfaction (NPS) | ~40 | > 50 | - |
-| Error Detection Trust | ~3.5/5 | > 4/5 | - |
-| Feature Usage (Visualizations) | 0% | > 30% | - |
-| Review Completion Rate | ~50% | > 60% | - |
+- [ ] **Theorem C validated empirically**: dim(H¹_epi) ≤ C log(Re) holds across Re ∈ [100, 10⁶]
+- [ ] **H¹_epi extracted from DNS**: Real turbulence data successfully analyzed
+- [ ] **Regime stratification confirmed**: Epipelagic zone identified in parameter space
+- [ ] **Publication-ready figures**: 10+ high-quality visualizations
+- [ ] **Reproducible pipeline**: Full workflow documented and tested
 
-### Business Metrics
+### Deliverables for Publication
 
-| Metric | Phase 1 Baseline | Phase 2 Target | Current |
-|--------|------------------|----------------|---------|
-| Total Active Users | ~100 | 500-1000 | - |
-| ASR Cost per Recitation | ~$0.003 | < $0.002 | - |
-| Infrastructure Cost/Month | ~$200 | < $500 | - |
-| Bug Reports per 100 Users | ~15 | < 5 | - |
+- [ ] Section 5 draft: "Persistent Homology and Epipelagic Cohomology"
+- [ ] Supplementary material: Computation methods
+- [ ] Interactive demos: Web-based explorables
+- [ ] Code release: GitHub repo with documentation
+- [ ] Dataset: Processed DNS results with topology
 
 ---
 
@@ -1019,130 +685,192 @@
 
 ### Technical Risks
 
-| Risk | Probability | Impact | Mitigation Strategy |
-|------|-------------|--------|---------------------|
-| Fine-tuning doesn't improve WER | Medium | High | Use multiple architectures (Whisper Large, wav2vec2); collect more data; consider ensemble |
-| ML classifier overfits | Medium | Medium | Cross-validation; regularization; collect more diverse data |
-| Visualizations too slow | Low | Medium | Optimize rendering (canvas vs SVG); lazy loading; reduce data points |
-| GPU costs exceed budget | Medium | Medium | Batch inference; model quantization; consider serverless GPU |
-| Database becomes bottleneck | Low | High | Add read replicas; optimize queries; implement caching |
+| Risk | Probability | Impact | Mitigation |
+|------|-------------|--------|------------|
+| GPU cluster unavailable | Medium | High | Optimize CPU code, use cloud GPUs (AWS/GCP) |
+| DNS data too large | High | Medium | Implement streaming, chunking, coarse-graining |
+| Finiteness bound not validated | Medium | High | Try multiple synthetic models, adjust thresholds |
+| Houdini complexity | Medium | Medium | Use Plotly as fallback, simplify visualizations |
+| Memory overflow | High | High | Profile carefully, implement out-of-core algorithms |
 
-### Product Risks
+### Research Risks
 
-| Risk | Probability | Impact | Mitigation Strategy |
-|------|-------------|--------|---------------------|
-| Users don't understand visualizations | High | Medium | User testing; simplify; add tutorials; make optional |
-| Personalization doesn't improve retention | Medium | High | A/B testing; allow manual override; iterate based on data |
-| Phase 2 features not compelling | Low | High | User interviews; prioritize most requested features; iterate quickly |
-| Technical debt accumulates | Medium | Medium | Allocate 20% time for refactoring; code reviews; documentation |
-
-### Schedule Risks
-
-| Risk | Probability | Impact | Mitigation Strategy |
-|------|-------------|--------|---------------------|
-| Fine-tuning takes longer than expected | High | Medium | Start early; have backup (use baseline Whisper); parallelproduct work |
-| Dataset acquisition delayed | Medium | High | Multiple sources; start outreach early; budget for paid data |
-| Scope creep | High | Medium | Strict prioritization; say no to low-impact features; defer to Phase 3 |
-| Key team member unavailable | Low | High | Cross-training; documentation; clear handoff procedures |
+| Risk | Probability | Impact | Mitigation |
+|------|-------------|--------|------------|
+| Topology doesn't match theory | Low | High | Consult Sonnet for theoretical refinement |
+| dim(H¹) shows wrong scaling | Medium | High | Reconsider persistence thresholds, vortex models |
+| Regime boundaries unclear | Medium | Medium | Use data-driven clustering (ML) |
+| Computational cost prohibitive | Low | Medium | Focus on smaller Re ranges first |
 
 ---
 
 ## Implementation Order (Critical Path)
 
-**Parallel Work Streams:**
+### Parallel Work Streams
 
-1. **ML Stream** (ML Engineer):
-   - Week 9: Data collection & analysis
-   - Week 10-11: Whisper fine-tuning (CRITICAL PATH)
-   - Week 12: ML error classifier
-   - Week 15: Personalized SM-2
+**Week 1-2: Foundation**
+- DNS data integration (P0)
+- Data processing pipeline (P0)
 
-2. **Frontend Stream** (Frontend Engineer):
-   - Week 9-10: Memory Visualizer
-   - Week 11-12: Pronunciation Explorer
-   - Week 13: Spaced Rep Explorer
-   - Week 14-15: Settings & user controls
-   - Week 16: Polish & optimization
+**Week 3-4: Core Topology**
+- Gudhi integration (P0)
+- Transfer matrix measurement (P0)
+- Structured vortex models (P1)
 
-3. **Backend Stream** (Backend Engineer):
-   - Week 9: Data export APIs
-   - Week 10-11: Model deployment infrastructure
-   - Week 12: ML classifier integration
-   - Week 13-14: Visualization APIs
-   - Week 15: Personalized SM-2 APIs
-   - Week 16: Performance optimization
+**Week 5-6: Synthesis & Validation**
+- Vortex arrays (P1)
+- DNS-informed synthesis (P2)
 
-**Dependencies:**
-- Visualizations depend on data collection (Week 9)
-- ML classifier depends on labeled data (Week 9)
-- Personalized SM-2 depends on user performance data (Week 9)
-- Fine-tuning is independent and should start ASAP
+**Week 7-8: Large-Scale Testing** (requires GPU)
+- Reynolds sweep (P0) ← **CRITICAL PATH**
+- Regime validation (P1)
+
+**Week 9-10: Visualization**
+- Houdini integration (P1)
+- Web dashboard (P2)
+
+**Week 11-12: Production**
+- Scalability optimization (P0)
+- Testing and CI/CD (P0)
+
+### Dependencies
+
+- Weeks 7-8 require GPU cluster (arrange by Week 6)
+- Weeks 9-10 can proceed in parallel with 7-8
+- Week 11-12 optimization depends on Week 7-8 profiling data
 
 ---
 
-## Daily Workflow
+## Agent Collaboration Protocol
 
-**Daily Standup** (15 min, async on Slack):
-- What did I complete yesterday?
-- What am I working on today?
-- Any blockers?
+### Claude Code (This Agent) - Implementation Specialist
 
-**Weekly Sprint** (Friday):
-- Demo completed work
-- Review metrics
-- Plan next week
-- Update TASKS.md
+**Focus**: Production code, optimization, infrastructure
 
-**Communication:**
-- Urgent issues: Slack DM
-- Questions: Slack #engineering channel
-- Code reviews: GitHub PR
-- Design discussions: Figma comments
+**Tasks**:
+- DNS data integration and processing
+- Gudhi/Ripser pipeline optimization
+- Large-scale GPU deployment
+- Houdini visualization assets
+- Testing and CI/CD
+
+**Escalate to Sonnet when**:
+- Theoretical guidance needed (thresholds, regime boundaries)
+- Unexpected results require mathematical explanation
+- Publication writing (Section 5)
+
+**Escalate to Haiku when**:
+- Quick prototypes needed (new vortex models)
+- Parameter exploration (what thresholds to use?)
+- Rapid iteration on visualizations
+
+---
+
+### Claude Haiku - Rapid Prototyper
+
+**Focus**: Quick experiments, parameter sweeps, prototypes
+
+**Tasks**:
+- Vortex model prototyping (Lamb-Oseen variants)
+- Threshold optimization (what values work best?)
+- Visualization prototypes (Plotly sketches)
+- Sanity checks (does dim(H¹) make sense?)
+
+**Handoff to Code when**:
+- Prototype validated, ready for production
+- Performance critical (need GPU optimization)
+- Integration with main pipeline required
+
+---
+
+### Claude Sonnet - Primary Researcher
+
+**Focus**: Mathematical rigor, theorem proving, paper writing
+
+**Tasks**:
+- Prove Theorem C formally
+- Establish H¹_cascade ↔ H¹_persistent correspondence
+- Interpret computational results mathematically
+- Write Section 5 (Persistent Homology)
+
+**Requests to Code/Haiku**:
+- "Validate this bound numerically"
+- "Test this threshold criterion"
+- "Generate figures for paper"
 
 ---
 
 ## Getting Started
 
-**Step 1**: Verify Prerequisites
-```bash
-# Check Phase 1 completion
-make check-phase1-complete
+### Step 1: Environment Setup
 
-# Expected output: All checks ✅
+```bash
+# Install Phase 2 dependencies
+pip install pyJHTDB gudhi plotly dash
+
+# Houdini (optional, for visualization)
+# Download from sidefx.com and install manually
+
+# Create data directories
+mkdir -p data/dns/jhtdb_iso1024
+mkdir -p results/phase2_topology
+mkdir -p figures/phase2
+
+# Verify GPU access
+python -c "import taichi as ti; ti.init(arch=ti.gpu); print('GPU:', ti.cfg.arch)"
 ```
 
-**Step 2**: Set up Week 9 environment
-```bash
-# Install ML dependencies
-cd ml
-pip install -r requirements-phase2.txt
+### Step 2: DNS Data Download
 
-# Set up data directories
-mkdir -p data/raw data/processed data/ground_truth
+```bash
+# Download test dataset
+python scripts/download_dns_data.py \
+    --dataset isotropic1024coarse \
+    --time 0.364 \
+    --resolution 256 \
+    --output data/dns/jhtdb_iso1024/
+
+# Validate
+python scripts/validate_dns_data.py data/dns/jhtdb_iso1024/
 ```
 
-**Step 3**: Start with data collection
-```bash
-# Export recitations for analysis
-npm run script:export-recitations -- --limit 1000 --output data/raw/
+### Step 3: Run Baseline Topology Extraction
 
-# Begin manual labeling
-python ml/scripts/setup_labeling_tool.py
+```bash
+# Extract topology from DNS
+python scripts/topology_extraction.py \
+    --input data/dns/jhtdb_iso1024/velocity.h5 \
+    --output results/phase2_topology/baseline.h5 \
+    --method dns
+
+# Analyze results
+python scripts/analyze_finiteness_bound.py results/phase2_topology/baseline.h5
 ```
 
-**Step 4**: Daily updates
-```bash
-# Update task status
-# Edit TASKS.md, mark completed tasks with [x]
+### Step 4: Track Progress
 
-# Commit progress
-git add TASKS.md
-git commit -m "docs: Update Phase 2 progress - Week 9 Day 1"
-git push
-```
+Update task status in this file daily:
+- Mark completed tasks with `[x]`
+- Document issues in task notes
+- Update acceptance criteria as needed
 
 ---
 
-**Questions?** Contact the team lead or review @CLAUDE.md for project guidelines.
+## Communication
 
-**Ready to start?** Begin with Week 9, Task 9.1: Backend Data Export Pipeline.
+**Daily Updates**: Update this TASKS.md with progress
+**Blockers**: Tag @Sonnet for theory, @Haiku for quick tests
+**Code Review**: All production code requires review
+**Documentation**: Document as you code, not after
+
+---
+
+**Questions?** Review CLAUDE.md (agent roles) and ARCHITECTURE.md (system design)
+
+**Ready to start?** Begin with Week 1, Task 2.1: DNS Data Acquisition
+
+---
+
+**STATUS**: Phase 2 Ready to Launch
+**VERSION**: 1.0
+**LAST UPDATED**: 2025-12-05

@@ -83,6 +83,8 @@ if TAICHI_AVAILABLE:
             self.k3_imag = ti.field(dtype=ti.f64, shape=n_shells)
             self.k4_real = ti.field(dtype=ti.f64, shape=n_shells)
             self.k4_imag = ti.field(dtype=ti.f64, shape=n_shells)
+            self.temp_real = ti.field(dtype=ti.f64, shape=n_shells)
+            self.temp_imag = ti.field(dtype=ti.f64, shape=n_shells)
 
             # Scalars
             self.nu = ti.field(dtype=ti.f64, shape=())
@@ -196,34 +198,22 @@ if TAICHI_AVAILABLE:
                 dudt_i[n] = nonlinear_i + viscous_i + self.forcing_imag[n]
 
         @ti.kernel
-        def rk4_step(self, dt: ti.f64):
-            """
-            Single RK4 timestep (in-place update).
-
-            Performance-critical kernel - fully parallelized on GPU.
-            """
-            # Stage 1: k1 = f(u)
-            self.compute_rhs(self.u_real, self.u_imag, self.k1_real, self.k1_imag)
-
-            # Stage 2: k2 = f(u + dt/2 * k1)
+        def update_temp(self, dt: ti.f64, stage: ti.i32):
+            """Update temporary state for RK4 stage."""
             for n in range(self.n_shells):
-                temp_r = self.u_real[n] + 0.5 * dt * self.k1_real[n]
-                temp_i = self.u_imag[n] + 0.5 * dt * self.k1_imag[n]
-                self.compute_rhs_single(temp_r, temp_i, n, self.k2_real, self.k2_imag)
+                if stage == 2:
+                    self.temp_real[n] = self.u_real[n] + 0.5 * dt * self.k1_real[n]
+                    self.temp_imag[n] = self.u_imag[n] + 0.5 * dt * self.k1_imag[n]
+                elif stage == 3:
+                    self.temp_real[n] = self.u_real[n] + 0.5 * dt * self.k2_real[n]
+                    self.temp_imag[n] = self.u_imag[n] + 0.5 * dt * self.k2_imag[n]
+                elif stage == 4:
+                    self.temp_real[n] = self.u_real[n] + dt * self.k3_real[n]
+                    self.temp_imag[n] = self.u_imag[n] + dt * self.k3_imag[n]
 
-            # Stage 3: k3 = f(u + dt/2 * k2)
-            for n in range(self.n_shells):
-                temp_r = self.u_real[n] + 0.5 * dt * self.k2_real[n]
-                temp_i = self.u_imag[n] + 0.5 * dt * self.k2_imag[n]
-                self.compute_rhs_single(temp_r, temp_i, n, self.k3_real, self.k3_imag)
-
-            # Stage 4: k4 = f(u + dt * k3)
-            for n in range(self.n_shells):
-                temp_r = self.u_real[n] + dt * self.k3_real[n]
-                temp_i = self.u_imag[n] + dt * self.k3_imag[n]
-                self.compute_rhs_single(temp_r, temp_i, n, self.k4_real, self.k4_imag)
-
-            # Update: u += dt/6 * (k1 + 2k2 + 2k3 + k4)
+        @ti.kernel
+        def update_state(self, dt: ti.f64):
+            """Final update for RK4."""
             for n in range(self.n_shells):
                 self.u_real[n] += dt / 6.0 * (
                     self.k1_real[n] + 2*self.k2_real[n] + 2*self.k3_real[n] + self.k4_real[n]
@@ -231,6 +221,30 @@ if TAICHI_AVAILABLE:
                 self.u_imag[n] += dt / 6.0 * (
                     self.k1_imag[n] + 2*self.k2_imag[n] + 2*self.k3_imag[n] + self.k4_imag[n]
                 )
+
+        def rk4_step(self, dt: float):
+            """
+            Single RK4 timestep (Python-orchestrated).
+
+            Calls GPU kernels for each stage.
+            """
+            # Stage 1: k1 = f(u)
+            self.compute_rhs(self.u_real, self.u_imag, self.k1_real, self.k1_imag)
+
+            # Stage 2: k2 = f(u + dt/2 * k1)
+            self.update_temp(dt, 2)
+            self.compute_rhs(self.temp_real, self.temp_imag, self.k2_real, self.k2_imag)
+
+            # Stage 3: k3 = f(u + dt/2 * k2)
+            self.update_temp(dt, 3)
+            self.compute_rhs(self.temp_real, self.temp_imag, self.k3_real, self.k3_imag)
+
+            # Stage 4: k4 = f(u + dt * k3)
+            self.update_temp(dt, 4)
+            self.compute_rhs(self.temp_real, self.temp_imag, self.k4_real, self.k4_imag)
+
+            # Update: u += dt/6 * (k1 + 2k2 + 2k3 + k4)
+            self.update_state(dt)
 
         def set_state(self, u: np.ndarray):
             """Set state from numpy array (complex)."""

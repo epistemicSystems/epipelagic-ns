@@ -60,6 +60,7 @@ class CascadeComplex:
         n_shells: int = 8,
         k_min: float = 1.0,
         k_ratio: float = 2.0,
+        method: str = "phenomenological",
     ) -> "CascadeComplex":
         """
         Construct cascade complex from velocity field via shell decomposition.
@@ -74,6 +75,10 @@ class CascadeComplex:
             Minimum wavenumber (largest scale)
         k_ratio : float
             Ratio between consecutive shells kₙ₊₁/kₙ
+        method : str
+            Transfer computation method:
+            - 'phenomenological': Simple model (fast, approximate)
+            - 'spectral': Direct computation from nonlinear terms (slow, accurate)
 
         Returns
         -------
@@ -87,7 +92,27 @@ class CascadeComplex:
         3. Project to shells: ûₙ(k) = û(k) · 𝟙_{Sₙ}(k)
         4. Compute energies: Eₙ = ½∫|ûₙ|² dk
         5. Compute transfers: Tₙₘ = -∫ûₙ · 𝒫ₘ[(u·∇)u] dk
+           (if method='spectral', otherwise use phenomenological model)
         """
+        if method == "spectral":
+            # Use direct transfer measurement (Task 2.4)
+            from epipelagic.core.transfer_matrix import compute_transfer_matrix_spectral
+
+            transfer_obj = compute_transfer_matrix_spectral(
+                velocity, n_shells=n_shells, k_min=k_min, k_ratio=k_ratio
+            )
+
+            # Extract wavenumbers (computed from k_min and k_ratio)
+            wavenumbers = k_min * k_ratio ** np.arange(n_shells)
+
+            return cls(
+                n_shells=n_shells,
+                energies=transfer_obj.energies,
+                transfers=transfer_obj.T,
+                wavenumbers=wavenumbers,
+            )
+
+        # Otherwise, use phenomenological model (original implementation)
         from numpy.fft import fftn, ifftn, fftfreq
 
         # Determine dimensionality
@@ -136,7 +161,7 @@ class CascadeComplex:
             # Store shell velocity for transfer computation
             u_shells.append(u_n_hat)
 
-        # Compute energy transfers (simplified model)
+        # Compute energy transfers (simplified phenomenological model)
         # Full calculation requires: Tₙₘ = -∫ûₙ·𝒫ₘ[(u·∇)u] dk
         # Here we use a phenomenological model based on shell energies
         transfers = np.zeros((n_shells, n_shells))

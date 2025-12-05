@@ -1,0 +1,38 @@
+{
+  "config": {
+    "shell_counts": [
+      3,
+      5,
+      8
+    ],
+    "n_steps": 50000,
+    "dt": 0.001,
+    "target_steps_per_sec": 1000000.0
+  },
+  "benchmarks": [
+    {
+      "n_shells": 3,
+      "n_steps": 50000,
+      "wall_time": 74.26245760917664,
+      "steps_per_sec": 673.2877096949386,
+      "target_met": false,
+      "final_energy": 2.4061167308332714e+17
+    },
+    {
+      "n_shells": 5,
+      "n_steps": 50000,
+      "wall_time": 73.50382161140442,
+      "steps_per_sec": 680.2367401294723,
+      "target_met": false,
+      "final_energy": NaN
+    },
+    {
+      "n_shells": 8,
+      "n_steps": 50000,
+      "wall_time": 70.07559156417847,
+      "steps_per_sec": 713.5152038525096,
+      "target_met": false,
+      "final_energy": NaN
+    }
+  ]
+}
